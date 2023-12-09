@@ -1,7 +1,9 @@
+from typing import List
+
 import numpy as np
 import matplotlib.pyplot as plt
 
-from demo_game import NormalDistributionPlayer, run_demo_game, find_player_result
+from demo_game import NormalDistributionPlayer, run_demo_game, find_player_result, GameResult
 
 
 def calculate_elo(prev_elo_a: int, prev_elo_b: int, score: float, k=32):
@@ -22,7 +24,7 @@ def tournament1():
     players = [player1, player2]
     player_keys = list(map(lambda p: p.key, players))
 
-    tournament_results = []
+    tournament_results: List[GameResult] = []
     for i in range(num_rounds):
         rng.shuffle(players)
         game_result = run_demo_game(players)
@@ -33,7 +35,7 @@ def tournament1():
         player_elos[player_key] = [1000]
 
     # temp to debug player behaviour
-    player_1_scores = []
+    player_1_actions = []
 
     for game_result in tournament_results:
 
@@ -45,7 +47,7 @@ def tournament1():
         # temp to debug player behaviour
         player1_result = find_player_result(player_keys[0], game_result)
         if player1_result is not None:
-            player_1_scores.append(player1_result.score)
+            player_1_actions.append(player1_result.player_action)
 
         # every player vs every other player
         game_player_keys = list(map(lambda r: r.player_key, game_result))
@@ -60,10 +62,10 @@ def tournament1():
                 player_key = game_player_keys[player_index]
                 opponent_key = game_player_keys[opponent_index]
 
-                player_score = find_player_result(player_key, game_result).score
-                opponent_score = find_player_result(opponent_key, game_result).score
+                player_position = find_player_result(player_key, game_result).position
+                opponent_position = find_player_result(opponent_key, game_result).position
 
-                player_elo_score = 1 if player_score > opponent_score else 0 if opponent_score > player_score else 0.5
+                player_elo_score = 1 if player_position < opponent_position else 0 if opponent_position < player_position else 0.5
                 opponent_elo_score = 1 - player_elo_score
 
                 player_elo = player_elos[player_key][-1]
@@ -78,10 +80,10 @@ def tournament1():
                 # print(game_result_per_player)
                 # print(f"player {player} opponent {opponent} player_elo {player_elo} opponent_elo {opponent_elo} new_player_elo {new_player_elo} new_opponent_elo {new_opponent_elo}")
 
-    # plt.hist(player_1_scores, bins=50)
+    # plt.hist(player_1_actions, bins=50)
 
-    plt.plot(player_elos[player_keys[0]], label="player1")
-    plt.plot(player_elos[player_keys[1]], label="player2")
+    plt.plot(player_elos[player_keys[0]], label=f"player{player_keys[0]}")
+    plt.plot(player_elos[player_keys[1]], label=f"player{player_keys[1]}")
     plt.xlabel("Game")
     plt.ylabel("Elo")
     plt.legend(loc="best")
