@@ -20,9 +20,10 @@ def calculate_elo(prev_elo_a: int, prev_elo_b: int, score: float, k=32):
 
 
 class MultiplayerEloCalculator:
-    def __init__(self, player_keys: List[str | int], initial_elo=1000):
+    def __init__(self, player_keys: List[str | int], initial_elo=1000, k=32):
         self.player_keys = player_keys
         self.initial_elo = initial_elo
+        self.k = k
 
     def calculate(self, tournament_results: List[GameResult]):
 
@@ -59,8 +60,8 @@ class MultiplayerEloCalculator:
                     player_elo = player_elos[player_key][-1]
                     opponent_elo = player_elos[opponent_key][-1]
 
-                    new_player_elo = calculate_elo(player_elo, opponent_elo, player_elo_score)
-                    new_opponent_elo = calculate_elo(opponent_elo, player_elo, opponent_elo_score)
+                    new_player_elo = calculate_elo(player_elo, opponent_elo, player_elo_score, k=self.k)
+                    new_opponent_elo = calculate_elo(opponent_elo, player_elo, opponent_elo_score, k=self.k)
 
                     player_elos[player_key][-1] = new_player_elo
                     player_elos[opponent_key][-1] = new_opponent_elo
